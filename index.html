@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asistente de Servicios</title>
+    
+    <link rel="icon" type="image/jpeg" href="logo.jpeg">
+
+    <style>
+        :root {
+            --primary-color: #6366f1;
+            --hover-color: #4f46e5;
+            --bg-color: #f3f4f6;
+            --card-bg: #ffffff;
+            --text-color: #1f2937;
+        }
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+        }
+        .container {
+            background-color: var(--card-bg);
+            padding: 30px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+            width: 100%;
+            max-width: 450px;
+            position: relative; 
+        }
+        .header-container {
+            display: flex;
+            align-items: center;
+            justify-content: flex-start;
+            margin-bottom: 25px;
+            gap: 15px;
+        }
+        .logo-img {
+            max-height: 50px;
+            width: auto;
+            border-radius: 8px;
+        }
+        h2 {
+            color: var(--primary-color);
+            margin: 0;
+            font-size: 24px;
+        }
+        .form-group {
+            margin-bottom: 15px;
+        }
+        label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+        input, select {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #d1d5db;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-family: inherit;
+            font-size: 15px;
+            transition: border-color 0.3s;
+        }
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+        .btn {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 14px;
+            width: 100%;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 10px;
+            transition: background-color 0.3s;
+        }
+        .btn:hover {
+            background-color: var(--hover-color);
+        }
+        .btn-outline {
+            background-color: transparent;
+            color: var(--primary-color);
+            border: 2px solid var(--primary-color);
+            margin-top: 10px;
+        }
+        .btn-outline:hover {
+            background-color: var(--primary-color);
+            color: white;
+        }
+        .result-box {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #eef2ff;
+            border-radius: 8px;
+            border: 1px solid #c7d2fe;
+            display: none;
+        }
+        pre {
+            white-space: pre-wrap;
+            font-family: inherit;
+            margin: 0;
+            font-size: 15px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <div class="header-container">
+            <img src="logo.jpeg" alt="Logo" class="logo-img">
+            <h2>Solicitud de Servicios</h2>
+        </div>
+        
+        <form id="servicioForm">
+            <div class="form-group">
+                <label for="proveedor">Nombre del Proveedor:</label>
+                <input type="text" id="proveedor" placeholder="Ej. Juan Pérez - Plomería" required>
+            </div>
+
+            <div class="form-group">
+                <label for="servicio">Servicio a realizar:</label>
+                <input type="text" id="servicio" placeholder="Ej. Reparación de tubería" required>
+            </div>
+
+            <div class="form-group">
+                <label for="precio">Precio Estimado:</label>
+                <input type="text" id="precio" placeholder="Ej. Q350.00" required>
+            </div>
+
+            <div class="form-group">
+                <label for="materiales">¿Incluye materiales?</label>
+                <select id="materiales">
+                    <option value="Sí incluye materiales">Sí, incluye materiales</option>
+                    <option value="No incluye materiales (se compran aparte)">No, no incluye materiales</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="dia">Día disponible:</label>
+                <input type="date" id="dia" required>
+            </div>
+
+            <div class="form-group">
+                <label for="horario">Horario:</label>
+                <input type="text" id="horario" placeholder="Ej. 08:00 AM - 12:00 PM" required>
+            </div>
+
+            <button type="button" class="btn" onclick="generarSolicitud()">Generar Solicitud</button>
+        </form>
+
+        <div class="result-box" id="resultBox">
+            <pre id="textoResultado"></pre>
+            <button type="button" class="btn btn-outline" onclick="copiarTexto()" id="btnCopiar">📋 Copiar Texto</button>
+        </div>
+    </div>
+
+    <script>
+        function generarSolicitud() {
+            const proveedor = document.getElementById('proveedor').value;
+            const servicio = document.getElementById('servicio').value;
+            const precio = document.getElementById('precio').value;
+            const materiales = document.getElementById('materiales').value;
+            const diaRaw = document.getElementById('dia').value;
+            const horario = document.getElementById('horario').value;
+
+            if(!proveedor || !servicio || !precio || !diaRaw || !horario) {
+                alert("Por favor, llena todos los campos para generar la solicitud.");
+                return;
+            }
+
+            const partesFecha = diaRaw.split('-');
+            const fechaFormateada = `${partesFecha[2]}/${partesFecha[1]}/${partesFecha[0]}`;
+
+            const texto = `📌 *SOLICITUD DE SERVICIO*\n\n` +
+                          `👨‍🔧 *Proveedor:* ${proveedor}\n` +
+                          `🛠️ *Servicio:* ${servicio}\n` +
+                          `💰 *Precio:* ${precio}\n` +
+                          `📦 *Condición:* ${materiales}\n` +
+                          `📅 *Día acordado:* ${fechaFormateada}\n` +
+                          `⏰ *Horario:* ${horario}\n\n` +
+                          `¡Quedo a la espera de confirmación! Gracias.`;
+
+            document.getElementById('textoResultado').innerText = texto;
+            document.getElementById('resultBox').style.display = 'block';
+            document.getElementById('btnCopiar').innerText = "📋 Copiar Texto";
+        }
+
+        function copiarTexto() {
+            const texto = document.getElementById('textoResultado').innerText;
+            navigator.clipboard.writeText(texto).then(() => {
+                const btnCopiar = document.getElementById('btnCopiar');
+                btnCopiar.innerText = "✅ ¡Copiado!";
+                setTimeout(() => { btnCopiar.innerText = "📋 Copiar Texto"; }, 3000);
+            }).catch(err => {
+                alert('Error al copiar el texto: ', err);
+            });
+        }
+    </script>
+</body>
+</html>
